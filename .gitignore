@@ -1,0 +1,7 @@
+*.zip
+*.swo
+*.swp
+*.pyc
+
+10_scenes/
+20_objects/
