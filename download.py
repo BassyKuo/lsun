@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, division
@@ -19,6 +19,8 @@ __author__ = 'Fisher Yu'
 __email__ = 'fy@cs.princeton.edu'
 __license__ = 'MIT'
 
+#--------------------------------------------------------------------------------------------------------------------------------
+
 OBJECT_LIST_PATH = 'objects_category_indices.txt'
 SCENE_LIST_PATH  = 'scenes_category_indices.txt'
 
@@ -28,6 +30,7 @@ with open(SCENE_LIST_PATH) as f:
     s_list = [i.split(' ')[0] for i in f.read().splitlines()]
 
 #--------------------------------------------------------------------------------------------------------------------------------
+
 def s_list_categories(tag):
     url = 'http://lsun.cs.princeton.edu/htbin/list.cgi?tag=' + tag
     f = urlopen(url)
@@ -58,6 +61,7 @@ def o_download(out_dir, category):
     os.remove(out_path)
 
 #--------------------------------------------------------------------------------------------------------------------------------
+
 def make_parser(argv):
     prog = argv[0]
     parser = argparse.ArgumentParser(
@@ -92,6 +96,7 @@ def make_parser(argv):
     return args
 
 #--------------------------------------------------------------------------------------------------------------------------------
+
 def main(argv):
     args = make_parser(argv)
 
