@@ -9,6 +9,7 @@ import os
 from os.path import join
 
 import subprocess
+import zipfile
 try:
     from urllib2 import urlopen
 except:
@@ -26,6 +27,7 @@ with open(OBJECT_LIST_PATH) as f:
 with open(SCENE_LIST_PATH) as f:
     s_list = [i.split(' ')[0] for i in f.read().splitlines()]
 
+#--------------------------------------------------------------------------------------------------------------------------------
 def s_list_categories(tag):
     url = 'http://lsun.cs.princeton.edu/htbin/list.cgi?tag=' + tag
     f = urlopen(url)
@@ -51,7 +53,11 @@ def o_download(out_dir, category):
     cmd = ['curl', url, '-o', out_path]
     print('Downloading', category)
     subprocess.call(cmd)
+    with zipfile.ZipFile(out_path,"r") as zip_ref:
+        zip_ref.extractall(out_path.replace('.zip',''))
+    os.remove(out_path)
 
+#--------------------------------------------------------------------------------------------------------------------------------
 def make_parser(argv):
     prog = argv[0]
     parser = argparse.ArgumentParser(
@@ -66,27 +72,26 @@ def make_parser(argv):
         return subparsers.add_parser(cmd, description=help, help=help, epilog=epilog)
 
     command_parser = add_command('object',  'Download objects data of LSUN dataset. (NOTICE: object downloading usually spends a huge time)',
-                                            'object -o 10_objects -c airplane')
+                                            'object -o 20_objects -c airplane')
 
-    command_parser.add_argument('-o',       default='10_objects',
-                                            help='output directory [%(default)s]')
-    command_parser.add_argument('-c',       default=None, choices=o_list,
-                                            help='categories [%(default)s]')
+    command_parser.add_argument('--out_dir',        default='20_objects',
+                                                    help='output directory [%(default)s]')
+    command_parser.add_argument('--category',       default=None, choices=o_list,
+                                                    help='categories [%(default)s]')
 
     command_parser = add_command('scene',   'Download scenes data of LSUN dataset.',
-                                            'scene -o 20_scenes -c bedroom')
+                                            'scene -o 10_scenes -c bedroom')
 
-    command_parser.add_argument('--tag',    type=str,  default='latest',
-                                            help='url tag [%(default)s]')
-    command_parser.add_argument('-o',       default='20_scenes',
-                                            help='output directory [%(default)s]')
-    command_parser.add_argument('-c',       default=None, choices=s_list,
-                                            help='categories [%(default)s]')
-
+    command_parser.add_argument('--tag',            type=str,  default='latest',
+                                                    help='url tag [%(default)s]')
+    command_parser.add_argument('--out_dir',        default='10_scenes',
+                                                    help='output directory [%(default)s]')
+    command_parser.add_argument('--category',       default=None, choices=s_list,
+                                                    help='categories [%(default)s]')
     args = parser.parse_args()
     return args
 
-
+#--------------------------------------------------------------------------------------------------------------------------------
 def main(argv):
     args = make_parser(argv)
 
@@ -108,7 +113,13 @@ def main(argv):
                 s_download(args.out_dir, args.category, 'train', args.tag)
                 s_download(args.out_dir, args.category, 'val', args.tag)
     elif args.command == 'object':
-        pass
+        if args.category is None:
+            input('Category name is empty. It\'s coming to download all data about LSUN objects.\nPress any key to continue...')
+            print('Downloading', len(o_list), 'categories')
+            for category in o_list:
+                o_download(args.out_dir, category)
+        else:
+            o_download(args.out_dir, args.category)
     else:
         raise NameError("Unrecognized command '%s'" % args.command)
 
